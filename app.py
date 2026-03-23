@@ -9,9 +9,6 @@ import os
 # 1. CREATE APP
 # -------------------------
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'pvc-webapp-2026'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///pvc.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 ieema_df = None
 
@@ -153,20 +150,6 @@ def calculate():
         result=result,
         calc_id=calc.id
     )
-
-# -------------------------
-# 5. INIT DB & MAIN
-# -------------------------
-def init_db():
-    db.create_all()
-    if not User.query.filter_by(username='admin').first():
-        admin = User(
-            username='admin',
-            password_hash=generate_password_hash('admin123')
-        )
-        db.session.add(admin)
-        db.session.commit()
-        print("Admin user created: admin / admin123")
 
 import os
 
