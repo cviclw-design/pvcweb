@@ -1,0 +1,7 @@
+pandas
+openpyxl
+python-dateutil
+flask
+flask_sqlalchemy
+flask_login
+werkzeug

@@ -1,0 +1,221 @@
+{% extends "base.html" %}
+{% block title %}PVC Calculator{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+
+  <div class="alert alert-info">
+    <h4 class="mb-1">PVC Calculator</h4>
+    <p class="mb-0">
+      Logged in as <strong>{{ current_user.username }}</strong>
+    </p>
+  </div>
+
+  <form method="post" action="{{ url_for('calculate') }}">
+
+    <!-- ITEM & COMMERCIAL -->
+    <div class="card mb-3">
+      <div class="card-header bg-secondary text-white">
+        <h6 class="mb-0">Item & Commercial Details</h6>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <!-- Item -->
+          <div class="col-md-6 mb-3">
+            <label class="form-label fw-semibold">Item</label>
+            <select class="form-select form-select-sm" name="item" required>
+              {% for it in items %}
+                <option value="{{ it }}">{{ it }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <!-- Basic rate -->
+          <div class="col-md-3 mb-3">
+            <label class="form-label fw-semibold">Basic Rate (₹/unit)</label>
+            <input class="form-control form-control-sm" type="number" step="0.01"
+                   name="basicrate" required>
+          </div>
+
+          <!-- Quantity -->
+          <div class="col-md-3 mb-3">
+            <label class="form-label fw-semibold">Quantity (Accepted)</label>
+            <input class="form-control form-control-sm" type="number" step="1"
+                   name="quantity" required>
+          </div>
+
+          <!-- Freight -->
+          <div class="col-md-3 mb-3">
+            <label class="form-label fw-semibold">Freight (₹/unit)</label>
+            <input class="form-control form-control-sm" type="number" step="0.01"
+                   name="freight">
+          </div>
+
+          <!-- Rate applied -->
+          <div class="col-md-5 mb-3">
+            <label class="form-label fw-semibold">Rate applied (situation)</label>
+            <select class="form-select form-select-sm"
+                    id="rateapplied"
+                    name="rateapplied"
+                    onchange="toggleLowerRate()"
+                    required>
+              <option value="">-- Select --</option>
+              <option value="Supply before due date">Supply before due date</option>
+              <option value="Supply after due date">Supply after due date</option>
+              <option value="Lower rate applicable">Lower rate applicable</option>
+              <option value="Lower rate and LD comparison">Lower rate and LD comparison</option>
+              <option value="Lower rate with LD in further extension">Lower rate with LD in further extension</option>
+              
+            </select>
+          </div>
+
+          <!-- LOWER RATE INPUTS (hidden until needed) -->
+          <div id="lower_rate_section"
+               style="display:none; border-top: 1px dashed #e0b400; padding-top: 8px; margin-top: 6px;">
+            <div class="row">
+              <div class="col-md-4 mb-2">
+                <label class="form-label fw-semibold">Lower Basic Rate (₹/unit)</label>
+                <input class="form-control form-control-sm" type="number" step="0.01" name="lowerrate">
+              </div>
+              <div class="col-md-4 mb-2">
+                <label class="form-label fw-semibold">Lower Freight (₹/unit)</label>
+                <input class="form-control form-control-sm" type="number" step="0.01" name="lowerfreight">
+              </div>
+              <div class="col-md-4 mb-2">
+                <label class="form-label fw-semibold">Lower Base Date</label>
+                <input class="form-control form-control-sm" type="date" name="lowerbasicdate">
+              </div>
+            </div>
+            <small class="text-muted">
+              Fill only if lower rate clause / LD comparison is applicable.
+            </small>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- DATES -->
+    <div class="card mb-3">
+      <div class="card-header bg-secondary text-white">
+        <h6 class="mb-0">Dates</h6>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <!-- PVC base -->
+          <div class="col-md-4 mb-3">
+            <label class="form-label fw-semibold">PVC Base Date</label>
+            <input class="form-control form-control-sm" type="date" name="pvcbasedate">
+          </div>
+
+          <!-- Original DP -->
+          <div class="col-md-4 mb-3">
+            <label class="form-label fw-semibold">Original DP</label>
+            <input class="form-control form-control-sm" type="date" name="origdp">
+          </div>
+
+          <!-- Refixed DP with checkbox -->
+          <div class="col-md-4 mb-3">
+            <div class="form-check mb-1">
+              <input class="form-check-input" type="checkbox"
+                     id="refixed_dp_chk"
+                     onchange="toggleRefixedDP()">
+              <label class="form-check-label" for="refixed_dp_chk">
+                Refixed DP applicable
+              </label>
+            </div>
+            <input class="form-control form-control-sm"
+                   type="date"
+                   name="refixeddp"
+                   id="refixed_dp_input"
+                   disabled>
+          </div>
+
+          <!-- Extended DP (without LD) with checkbox -->
+          <div class="col-md-4 mb-3">
+            <div class="form-check mb-1">
+              <input class="form-check-input" type="checkbox"
+                     id="extended_dp_chk"
+                     onchange="toggleExtendedDP()">
+              <label class="form-check-label" for="extended_dp_chk">
+                Extended DP (without LD)
+              </label>
+            </div>
+            <input class="form-control form-control-sm"
+                   type="date"
+                   name="extendeddp"
+                   id="extended_dp_input"
+                   disabled>
+          </div>
+
+          <!-- Inspection / Call date -->
+          <div class="col-md-4 mb-3">
+            <label class="form-label fw-semibold">Call / Inspection Date</label>
+            <input class="form-control form-control-sm" type="date" name="caldate">
+          </div>
+
+          <!-- Supply date -->
+          <div class="col-md-4 mb-3">
+            <label class="form-label fw-semibold">Supply Date</label>
+            <input class="form-control form-control-sm" type="date" name="supdate">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SUBMIT BUTTONS -->
+    <div class="mb-4 text-center">
+      <button type="submit" class="btn btn-primary px-4">
+        Calculate PVC
+      </button>
+    </div>
+
+  </form>
+</div>
+
+<script>
+function toggleLowerRate() {
+  const sel = document.getElementById('rateapplied');
+  const sec = document.getElementById('lower_rate_section');
+  const val = sel.value.trim();
+
+  const lowerModes = [
+    'Lower rate applicable',
+    'Lower rate and LD comparison',
+    'Lower rate with LD in further extension'
+  ];
+
+  if (lowerModes.includes(val)) {
+    sec.style.display = 'block';
+  } else {
+    sec.style.display = 'none';
+
+    document.querySelector('input[name="lowerrate"]').value = '';
+    document.querySelector('input[name="lowerfreight"]').value = '';
+    document.querySelector('input[name="lowerbasicdate"]').value = '';
+  }
+}
+
+function toggleRefixedDP() {
+  const chk = document.getElementById('refixed_dp_chk');
+  const inp = document.getElementById('refixed_dp_input');
+  if (chk.checked) {
+    inp.disabled = false;
+  } else {
+    inp.disabled = true;
+    inp.value = '';
+  }
+}
+
+function toggleExtendedDP() {
+  const chk = document.getElementById('extended_dp_chk');
+  const inp = document.getElementById('extended_dp_input');
+  if (chk.checked) {
+    inp.disabled = false;
+  } else {
+    inp.disabled = true;
+    inp.value = '';
+  }
+}
+</script>
+{% endblock %}
