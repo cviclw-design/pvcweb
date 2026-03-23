@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Login - PVC/LD{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+
+  <!-- CLW VIGILANCE header -->
+  <div class="header mb-3">CLW VIGILANCE</div>
+
+  <div class="row justify-content-center">
+    <div class="col-md-4">
+      <h3 class="mb-3">Login</h3>
+
+      {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        {% for msg in messages %}
+          <div class="alert alert-warning py-1 mb-2">{{ msg }}</div>
+        {% endfor %}
+      {% endif %}
+      {% endwith %}
+
+      <form method="POST">
+        <div class="mb-3">
+          <label class="form-label">Control No (User ID)</label>
+          <input class="form-control" name="username" value="admin">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Password</label>
+          <input class="form-control" name="password" type="password" value="admin123">
+        </div>
+        <button class="btn btn-primary w-100" type="submit">Login</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Footer note -->
+  <div class="d-flex justify-content-between mt-4 px-3 py-2"
+       style="font-size: 11px; color: #212529; background-color: #fff3cd; border-radius: 4px; border: 1px solid #ffeeba;">
+    <div class="fw-semibold">
+      <b>Note:</b> This application should be used for cross verification only.
+    </div>
+    <div class="fw-semibold">
+      Developed by: <u>C. P. Chauhan</u> CVI/CLW
+    </div>
+  </div>
+
+</div>
+{% endblock %}
