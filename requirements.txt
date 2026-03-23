@@ -1,7 +1,5 @@
+flask
 pandas
 openpyxl
+numpy
 python-dateutil
-flask
-flask_sqlalchemy
-flask_login
-werkzeug
