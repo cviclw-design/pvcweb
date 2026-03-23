@@ -168,11 +168,8 @@ def init_db():
         db.session.commit()
         print("Admin user created: admin / admin123")
 
-if __name__ == '__main__':
-    os.makedirs('templates', exist_ok=True)
-    with app.app_context():
-        init_db()
-        # reload IEEMA once DB/app context is ready
-        ieema_df = get_ieema_df()
+import os
+
+if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
