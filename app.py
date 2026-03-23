@@ -1,8 +1,6 @@
 from pvc1 import get_ieema_df, calculate_single_record_from_dict
 import pandas as pd
 from flask import Flask, render_template, request, redirect, url_for, flash
-from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager, login_user, logout_user, login_required, current_user, UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 import os
@@ -15,80 +13,10 @@ app.config['SECRET_KEY'] = 'pvc-webapp-2026'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///pvc.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# -------------------------
-# 2. INIT EXTENSIONS
-# -------------------------
-db = SQLAlchemy(app)
-login_manager = LoginManager(app)
-login_manager.login_view = 'login'
-
-# -------------------------
-# 3. MODELS
-# -------------------------
-class User(UserMixin, db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80), unique=True, nullable=False)
-    password_hash = db.Column(db.String(120), nullable=False)
-
-class PVCResult(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    username = db.Column(db.String(80))
-    item = db.Column(db.String(50), nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-
-    basicrate = db.Column(db.Float)
-    quantity = db.Column(db.Float)
-    freight = db.Column(db.Float)
-    pvcbasedate = db.Column(db.String(10))
-    origdp = db.Column(db.String(10))
-    refixeddp = db.Column(db.String(10))
-    extendeddp = db.Column(db.String(10))
-    caldate = db.Column(db.String(10))
-    supdate = db.Column(db.String(10))
-    rateapplied = db.Column(db.String(50))
-
-    pvcactual = db.Column(db.Float)
-    ldamtactual = db.Column(db.Float)
-    fairprice = db.Column(db.Float)
-    selectedscenario = db.Column(db.String(10))
-
-@login_manager.user_loader
-def load_user(user_id):
-    return User.query.get(int(user_id))
-
-# IEEMA dataframe (loaded once)
 ieema_df = None
 
 with app.app_context():
     ieema_df = get_ieema_df()
-
-# -------------------------
-# 4. ROUTES
-# -------------------------
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    if request.method == 'POST':
-        u = request.form['username']
-        p = request.form['password']
-        user = User.query.filter_by(username=u).first()
-        if user and check_password_hash(user.password_hash, p):
-            login_user(user)
-            return redirect(url_for('index'))
-        flash('Invalid credentials')
-    return render_template('login.html')
-
-@app.route('/logout')
-@login_required
-def logout():
-    logout_user()
-    return redirect(url_for('login'))
-
-@app.route('/')
-@login_required
-def index():
-    items = ['Main Transformer 6531 KVA (PL NO: 29721008)', 'IGBT Purpultion System', 'Traction Motor 6568', 'Complete Shell WAG-9']
-    return render_template('index.html', items=items)
 
 @app.route('/calculate', methods=['POST'])
 @login_required
