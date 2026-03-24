@@ -16,7 +16,7 @@ with app.app_context():
     ieema_df = get_ieema_df()
 
 @app.route('/calculate', methods=['POST'])
-@login_required
+
 def calculate():
 
     # 1. GET VALUES FROM FORM
