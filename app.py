@@ -14,7 +14,9 @@ ieema_df = None
 
 with app.app_context():
     ieema_df = get_ieema_df()
-
+@app.route("/")
+def home():
+    return render_template("index.html")
 @app.route('/calculate', methods=['POST'])
 
 def calculate():
@@ -151,7 +153,7 @@ def calculate():
         calc_id=calc.id
     )
 
-import os
+
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
